@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Mr. White's Help Page</title>
+  <style>
+    .unresolved-ticket {
+      background-color: lightgray;
+      padding: 8px;
+      margin: 16px;
+      text-align: center;
+      font-family: Helvetica;
+      border: 1px solid black;
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Mr. White's Help Page</h1>
+
+  <form id="help-form" action="javascript:addTicket()" >
+    <label for="your-name">Your Name:</label>
+    <input type="text" class="your-name">
+    <label for="your-problem">Brief Description of Your Problem:</label>
+    <input type="text" class="your-problem">
+    <button type="submit">Help!</button>
+  </form>
+
+  <div id="waiting-tickets"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+  <script>
+    function addTicket() {
+      const form = document.getElementById('help-form');
+      const ticketData = {
+        name: form.getElementsByClassName('your-name')[0].value,
+        problem: form.getElementsByClassName('your-problem')[0].value,
+        submitTime: Date.now(),
+        resolved: false,
+      };
+
+      tickets.push(ticketData);
+
+      [...form.getElementsByTagName('input')].forEach(input => input.value = '');
+    }
+
+    function resolveTicket(evt) {
+      tickets.database.ref(`/tickets/${evt.currentTarget.getAttribute('data-id')}`).remove();
+    }
+
+    function displayUnresolvedTickets(tix) {
+      let markup = '';
+
+      tix.forEach(function(ticket) {
+        const val = ticket.exportVal();
+        markup += val ? `
+          <div class="unresolved-ticket" data-ticket-id="${val.submitTime}">
+            <p>Help Requested</p>
+            <p>${val.name} needs help: ${val.problem}</p>
+            <button class="fixed" data-id="${ticket.key}">Problem Solved</button>
+          </div>
+        ` : '';
+      });
+
+      document.getElementById('waiting-tickets').innerHTML = markup;
+      [...document.getElementsByClassName('fixed')].forEach(btn => btn.addEventListener('click', resolveTicket));
+    }
+
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyDra7orv66iLs8GRMGTkqjWn99oe7jlU50",
+      authDomain: "mrwshelppage.firebaseapp.com",
+      databaseURL: "https://mrwshelppage.firebaseio.com",
+      projectId: "mrwshelppage",
+      storageBucket: "mrwshelppage.appspot.com",
+      messagingSenderId: "875158055700"
+    };
+    firebase.initializeApp(config);
+
+    var tickets = firebase.database().ref('/tickets/');
+
+    tickets.on('value', displayUnresolvedTickets)
+
+  </script>
+</body>
+</html>
