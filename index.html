@@ -11,6 +11,16 @@
       font-family: Arial, Helvetica, sans-serif
     }
 
+    button.room-button {
+      padding: 12px;
+      margin: 8px;
+    }
+
+    button.room-selected {
+      background-color: darkgray;
+      color: white;
+    }
+
     form {
       border: 1px solid black;
       margin: 16px;
@@ -54,6 +64,8 @@
 </head>
 <body>
   <h1>Mr. White's Help Page</h1>
+  <!-- Empty Div to Put Class Buttons -->
+  <div class="room-select"></div>
 
   <!-- Help Request Submission Form -->
   <form id="help-form" action="javascript:addTicket()" >
@@ -78,6 +90,30 @@
   <script>
     'use strict';
 
+    function selectClassroom() {
+      const rooms = [
+        { display: 'Mr. Castro', code: 'CASTRO' },
+      ];
+      const roomMarkup = rooms.reduce((mk, room) => `${mk}<button class="room-button" data-code="${room.code}">${room.display}</button>`, '');
+
+      document.getElementsByClassName('room-select')[0].innerHTML = `<hr>${roomMarkup}<hr>`;
+
+      const allButtons = document.querySelectorAll('button.room-button');
+      if (rooms.length === 1) {
+        allButtons[0].classList.add('room-selected');
+        classroomRef = rooms[0].code;
+      } else {
+        [...document.querySelectorAll('button.room-button')].forEach(btn => {
+          btn.addEventListener('click', (evt) => {
+            allButtons.forEach(btn => btn.classList.remove('room-selected'));
+            evt.currentTarget.classList.add('room-selected');
+            classroomRef = evt.currentTarget.getAttribute('data-code');
+            displayUnresolvedTickets(tixRef);
+          });
+        });
+      }
+    }
+
     /**
      * Gathers User info from form, of which there is only one on the page, and submits it to the Firebase DB.
      */
@@ -89,7 +125,7 @@
         problem: form.getElementsByClassName('your-problem')[0].value,
         submitTime: Date.now(),
         resolved: false,
-        room: 'CASTRO',
+        room: classroomRef,
       };
 
       // Name and Problem Description are required.
@@ -134,10 +170,13 @@
     function displayUnresolvedTickets(tix) {
       let markup = '';
 
+      // Update the page's knowledge of all the tickets, even the ones not for our class.
+      tixRef = tix;
+
       // Iterate through the list and increase the markup.
       tix.forEach(function(ticket) {
         const val = ticket.exportVal();
-        markup += val && val.room === 'CASTRO' ? `
+        markup += val && !val.resolved && val.room === classroomRef ? `
           <div class="unresolved-ticket" data-ticket-id="${val.submitTime}">
             <p>Help Requested</p>
             <p>${val.name} needs help: ${val.problem}</p>
@@ -163,9 +202,19 @@
     };
     firebase.initializeApp(config);
 
+    // Set page ref for which classroom we're in.
+    var classroomRef = '';
+
     // Set refs for the two Firebase DB lists.
     var tickets = firebase.database().ref('/tickets/');
     var fixedTickets = firebase.database().ref('/resolved/');
+
+    // Set a global Ref for the tickets.
+    // TODO: Make this not in global scope once scripts are moved out.
+    var tixRef;
+
+    // Run the function that adds the classroom selection buttons to the page.
+    selectClassroom();
 
     // Set listeners on the two events we're working with: value and child_removed.
     tickets.on('value', displayUnresolvedTickets);
