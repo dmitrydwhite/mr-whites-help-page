@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, Helvetica, sans-serif
+}
+
+h1 {
+  text-align: center;
+}
+
+.room-select {
+  text-align: center;
+}
+
+button.room-button {
+  padding: 12px;
+  margin: 8px;
+}
+
+button.room-selected {
+  background-color: darkgray;
+  color: white;
+}
+
+form {
+  border: 1px solid black;
+  margin: 16px;
+  border-radius: 16px;
+}
+
+form * {
+  padding: 8px;
+}
+
+form .title {
+  text-align: center;
+  border-bottom: 1px solid gray;
+  background-color: lightblue;
+  border-radius: 16px 16px 0 0;
+}
+
+form .input {
+  float: left;
+}
+
+form .input-your-name {
+  width: 20%;
+}
+
+form .input-your-problem {
+  width: 80%;
+}
+input.your-problem {
+  min-width: 400px;
+}
+
+.unresolved-ticket {
+  background-color: lightgray;
+  padding: 8px;
+  margin: 16px;
+  text-align: center;
+  border: 1px solid black;
+  border-radius: 16px;
+}

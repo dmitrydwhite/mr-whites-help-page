@@ -5,63 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Mr. White's Help Page v1.0</title>
-  <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    button.room-button {
-      padding: 12px;
-      margin: 8px;
-    }
-
-    button.room-selected {
-      background-color: darkgray;
-      color: white;
-    }
-
-    form {
-      border: 1px solid black;
-      margin: 16px;
-      border-radius: 16px;
-    }
-
-    form * {
-      padding: 8px;
-    }
-
-    form .title {
-      text-align: center;
-      border-bottom: 1px solid gray;
-      background-color: lightblue;
-      border-radius: 16px 16px 0 0;
-    }
-
-    form .input {
-      float: left;
-    }
-
-    form .input-your-name {
-      width: 20%;
-    }
-
-    form .input-your-problem {
-      width: 80%;
-    }
-
-    .unresolved-ticket {
-      background-color: lightgray;
-      padding: 8px;
-      margin: 16px;
-      text-align: center;
-      border: 1px solid black;
-      border-radius: 16px;
-    }
-  </style>
+  <link rel="stylesheet" href="./resources/styles/app-style.css">
   <!-- Import Firebase -->
   <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
   <script>
@@ -81,7 +25,7 @@
 <body>
   <h1>Mr. White's Help Page</h1>
   <!-- Empty Div to Put Class Buttons -->
-  <div class="room-select" style="text-align: center;">
+  <div class="room-select">
     <p>
       It looks like you aren't signed in. You might need to allow popups for this page, then refresh, in order to get signed in.
     </p>
@@ -100,7 +44,6 @@
         type="text"
         class="your-problem"
         name="Problem Description"
-        style="min-width: 400px; @media (max-width: 486px) { min-width: 0; width: 100%;}"
       >
       <button type="submit">Help!</button>
     </div>
