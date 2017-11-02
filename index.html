@@ -6,9 +6,12 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Mr. White's Help Page v1.0</title>
   <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif
+    }
+
     h1 {
       text-align: center;
-      font-family: Arial, Helvetica, sans-serif
     }
 
     button.room-button {
@@ -32,7 +35,6 @@
     }
 
     form .title {
-      font-family: Arial, Helvetica, sans-serif;
       text-align: center;
       border-bottom: 1px solid gray;
       background-color: lightblue;
@@ -56,11 +58,23 @@
       padding: 8px;
       margin: 16px;
       text-align: center;
-      font-family: Arial, Helvetica, sans-serif;
       border: 1px solid black;
       border-radius: 16px;
     }
   </style>
+  <!-- Import Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+  <script>
+    var config = {
+      apiKey: "AIzaSyDra7orv66iLs8GRMGTkqjWn99oe7jlU50",
+      authDomain: "mrwshelppage.firebaseapp.com",
+      databaseURL: "https://mrwshelppage.firebaseio.com",
+      projectId: "mrwshelppage",
+      storageBucket: "mrwshelppage.appspot.com",
+      messagingSenderId: "875158055700"
+    };
+    firebase.initializeApp(config);
+  </script>
 </head>
 <body>
   <h1>Mr. White's Help Page</h1>
@@ -76,7 +90,12 @@
     </div>
     <div class="input input-your-problem">
       <label for="your-problem">Brief Description of Your Problem:</label>
-      <input type="text" class="your-problem" name="Problem Description" style="min-width: 400px;">
+      <input
+        type="text"
+        class="your-problem"
+        name="Problem Description"
+        style="min-width: 400px; @media (max-width: 486px) { min-width: 0; width: 100%;}"
+      >
       <button type="submit">Help!</button>
     </div>
     <div style="clear: both;"></div>
@@ -85,16 +104,20 @@
   <!-- Empty Div to Put Tickets from DB -->
   <div id="waiting-tickets"></div>
 
-  <!-- Import Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
   <script>
     'use strict';
 
-    function selectClassroom() {
-      const rooms = [
-        { display: 'Mr. Castro', code: 'CASTRO' },
-      ];
-      const roomMarkup = rooms.reduce((mk, room) => `${mk}<button class="room-button" data-code="${room.code}">${room.display}</button>`, '');
+    function selectClassroom(classrooms = []) {
+      const rooms = [];
+
+      classrooms.forEach((room) => {
+        rooms.push(room.exportVal());
+      });
+
+
+      const roomMarkup = rooms.reduce((mk, room) => `
+        ${mk}<button class="room-button" data-code="${room.code}">${room.display}</button>
+      `, '');
 
       document.getElementsByClassName('room-select')[0].innerHTML = `<hr>${roomMarkup}<hr>`;
 
@@ -191,32 +214,23 @@
       [...document.getElementsByClassName('fixed')].forEach(btn => btn.addEventListener('click', removeFromActive));
     }
 
-    // Initialize Firebase
-    var config = {
-      apiKey: "AIzaSyDra7orv66iLs8GRMGTkqjWn99oe7jlU50",
-      authDomain: "mrwshelppage.firebaseapp.com",
-      databaseURL: "https://mrwshelppage.firebaseio.com",
-      projectId: "mrwshelppage",
-      storageBucket: "mrwshelppage.appspot.com",
-      messagingSenderId: "875158055700"
-    };
-    firebase.initializeApp(config);
-
     // Set page ref for which classroom we're in.
+    // TODO: Make this not in global scope once scripts are moved out.
     var classroomRef = '';
 
-    // Set refs for the two Firebase DB lists.
+    // Set refs for the Firebase DB lists.
     var tickets = firebase.database().ref('/tickets/');
     var fixedTickets = firebase.database().ref('/resolved/');
+    var allClasses = firebase.database().ref('/classrooms/');
 
     // Set a global Ref for the tickets.
     // TODO: Make this not in global scope once scripts are moved out.
     var tixRef;
 
     // Run the function that adds the classroom selection buttons to the page.
-    selectClassroom();
+    allClasses.once('value', selectClassroom);
 
-    // Set listeners on the two events we're working with: value and child_removed.
+    // Set listeners on the two `tickets` events we're working with: value and child_removed.
     tickets.on('value', displayUnresolvedTickets);
     tickets.on('child_removed', resolveTicket);
 
