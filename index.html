@@ -75,11 +75,17 @@
     };
     firebase.initializeApp(config);
   </script>
+  <script src="https://cdn.firebase.com/libs/firebaseui/2.4.1/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.4.1/firebaseui.css" />
 </head>
 <body>
   <h1>Mr. White's Help Page</h1>
   <!-- Empty Div to Put Class Buttons -->
-  <div class="room-select"></div>
+  <div class="room-select" style="text-align: center;">
+    <p>
+      It looks like you aren't signed in. You might need to allow popups for this page, then refresh, in order to get signed in.
+    </p>
+  </div>
 
   <!-- Help Request Submission Form -->
   <form id="help-form" action="javascript:addTicket()" >
@@ -143,16 +149,18 @@
     function addTicket() {
       const form = document.getElementById('help-form');
       const inputs = form.getElementsByTagName('input');
+      const userRef = firebase.auth().currentUser;
       const ticketData = {
         name: form.getElementsByClassName('your-name')[0].value,
         problem: form.getElementsByClassName('your-problem')[0].value,
         submitTime: Date.now(),
         resolved: false,
+        creatorUid: (userRef && userRef.uid),
         room: classroomRef,
       };
 
       // Name and Problem Description are required.
-      if (ticketData.name && ticketData.problem) {
+      if (ticketData.name && ticketData.problem && ticketData.creatorUid) {
         // Push to Firebase DB
         tickets.push(ticketData);
         // Clear out the inputs on successful submit
@@ -191,6 +199,8 @@
      * @param {Firebase} tix Firebase list of tickets in the "tickets" path.
      */
     function displayUnresolvedTickets(tix) {
+      const userRef = firebase.auth().currentUser;
+      const currentUser = (userRef && userRef.uid) || 'anonymous';
       let markup = '';
 
       // Update the page's knowledge of all the tickets, even the ones not for our class.
@@ -199,11 +209,16 @@
       // Iterate through the list and increase the markup.
       tix.forEach(function(ticket) {
         const val = ticket.exportVal();
+        const disableTicket = currentUser !== val.creatorUid ? 'disabled' : '';
         markup += val && !val.resolved && val.room === classroomRef ? `
           <div class="unresolved-ticket" data-ticket-id="${val.submitTime}">
             <p>Help Requested</p>
             <p>${val.name} needs help: ${val.problem}</p>
-            <button class="fixed" data-id="${ticket.key}">Problem Solved</button>
+            <button
+              class="fixed"
+              data-id="${ticket.key}"
+              ${disableTicket}
+            >Problem Solved</button>
           </div>
         ` : '';
       });
@@ -215,7 +230,7 @@
     }
 
     // Set page ref for which classroom we're in.
-    // TODO: Make this not in global scope once scripts are moved out.
+    // TODO: Make this is not in global scope once scripts are moved out.
     var classroomRef = '';
 
     // Set refs for the Firebase DB lists.
@@ -223,17 +238,31 @@
     var fixedTickets = firebase.database().ref('/resolved/');
     var allClasses = firebase.database().ref('/classrooms/');
 
+    /**
+     * Starts the app/page's interactions with the databases. Expects a user to be logged in.
+     */
+    function startApp() {
+      // Run the function that adds the classroom selection buttons to the page.
+      allClasses.once('value', selectClassroom);
+
+      // Set listeners on the two `tickets` events we're working with: value and child_removed.
+      tickets.on('value', displayUnresolvedTickets);
+      tickets.on('child_removed', resolveTicket);
+    }
+
     // Set a global Ref for the tickets.
-    // TODO: Make this not in global scope once scripts are moved out.
+    // TODO: Make this is not in global scope once scripts are moved out.
     var tixRef;
 
-    // Run the function that adds the classroom selection buttons to the page.
-    allClasses.once('value', selectClassroom);
-
-    // Set listeners on the two `tickets` events we're working with: value and child_removed.
-    tickets.on('value', displayUnresolvedTickets);
-    tickets.on('child_removed', resolveTicket);
-
+    // Check the user state
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+          .then(startApp);
+      } else {
+        startApp();
+      }
+    });
   </script>
 </body>
 </html>
