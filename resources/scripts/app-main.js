@@ -42,8 +42,9 @@ function AppExecute(firebase) {
 
   function showHintsWhileWaiting(on) {
     const form = document.getElementById('help-form');
+    const slidesAreThere = document.getElementById('slide-wrapper');
     
-    if (on) {
+    if (on && !slidesAreThere) {
       const wrapperDiv = document.createElement('div');
       const slideFrame = document.createElement('iframe');
       const newFrameAttrs =  {
@@ -63,8 +64,9 @@ function AppExecute(firebase) {
       form.hidden = true;
       wrapperDiv.appendChild(slideFrame);
       form.after(wrapperDiv);
-    } else {
+    } else if (!on) {
       const slideDiv = document.getElementById('slide-wrapper');
+
       if (slideDiv) slideDiv.remove();
       form.hidden = false;
     }
