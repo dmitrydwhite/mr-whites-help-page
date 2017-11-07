@@ -153,7 +153,7 @@ function AppExecute(firebase) {
         </div>
       ` : '';
 
-      if (currentUserHasTicket) showHintsWhileWaiting(true);
+      if (currentUserHasTicket && markup.length !== 0) showHintsWhileWaiting(true);
       else showHintsWhileWaiting(false);
     });
 
