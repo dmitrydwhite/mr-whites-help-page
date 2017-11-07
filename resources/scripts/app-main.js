@@ -3,6 +3,7 @@
 function AppExecute(firebase) {
   // Set page ref for which classroom we're in.
   var classroomRef = '';
+  var isInstructor = false;
   // Set refs for the Firebase DB lists.
   var tickets = firebase.database().ref('/tickets/');
   var fixedTickets = firebase.database().ref('/resolved/');
@@ -139,7 +140,7 @@ function AppExecute(firebase) {
     // Iterate through the list and increase the markup.
     tix.forEach(function(ticket) {
       const val = ticket.exportVal();
-      const disableTicket = currentUser !== val.creatorUid ? 'disabled' : '';
+      const disableTicket = (currentUser !== val.creatorUid && !isInstructor) ? 'disabled' : '';
 
       if (currentUser === val.creatorUid) currentUserHasTicket = true;
 
@@ -169,6 +170,9 @@ function AppExecute(firebase) {
    * Starts the app/page's interactions with the databases. Expects a user to be logged in.
    */
   function startApp() {
+    // See if this user is an instructor.
+    isUser = firebase.auth().currentUser && firebase.auth().currentUser.uid === 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
+
     // Run the function that adds the classroom selection buttons to the page.
     allClasses.once('value', selectClassroom);
 
