@@ -152,15 +152,15 @@ function AppExecute(firebase) {
           >Problem Solved</button>
         </div>
       ` : '';
-
-      if (currentUserHasTicket && markup.length !== 0) showHintsWhileWaiting(true);
-      else showHintsWhileWaiting(false);
     });
-
+    
     // Grab the empty div once and put all the generated markup in there.
     document.getElementById('waiting-tickets').innerHTML = markup;
     // Add click handlers on all the ticket buttons.
     [...document.getElementsByClassName('fixed')].forEach(btn => btn.addEventListener('click', removeFromActive));
+    // Show the slide show if this user has a waiting ticket and the markup exists.
+    if (currentUserHasTicket && markup.length !== 0) showHintsWhileWaiting(true);
+    else showHintsWhileWaiting(false);
   }
 
   /**
