@@ -47,7 +47,7 @@ function AppExecute(firebase) {
       const wrapperDiv = document.createElement('div');
       const slideFrame = document.createElement('iframe');
       const newFrameAttrs =  {
-        src: 'https://docs.google.com/presentation/d/e/2PACX-1vRRKbyGTjjPfIj41Yn4Xo3p_sDZzRIHvFaOmJnPHXjIZJhNL5-FrXx8Vhu3hxprVbUaUwKjD_WngMS3/embed?start=true&loop=true&delayms=3000',
+        src: 'https://docs.google.com/presentation/d/e/2PACX-1vRRKbyGTjjPfIj41Yn4Xo3p_sDZzRIHvFaOmJnPHXjIZJhNL5-FrXx8Vhu3hxprVbUaUwKjD_WngMS3/embed?start=true&loop=true&delayms=10000',
         frameborder: '0',
         width: '960',
         height: '569',
