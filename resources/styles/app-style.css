@@ -48,8 +48,13 @@ form .input-your-name {
 form .input-your-problem {
   width: 80%;
 }
+
 input.your-problem {
   min-width: 400px;
+}
+
+#slide-wrapper {
+  text-align: center;
 }
 
 .unresolved-ticket {
