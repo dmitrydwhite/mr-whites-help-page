@@ -64,8 +64,9 @@ function AppExecute(firebase) {
       wrapperDiv.appendChild(slideFrame);
       form.after(wrapperDiv);
     } else {
+      const slideDiv = document.getElementById('slide-wrapper');
+      if (slideDiv) slideDiv.remove();
       form.hidden = false;
-      document.getElementById('slide-wrapper').remove();
     }
   }
 
