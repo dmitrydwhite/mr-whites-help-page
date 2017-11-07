@@ -40,6 +40,35 @@ function AppExecute(firebase) {
     }
   }
 
+  function showHintsWhileWaiting(on) {
+    const form = document.getElementById('help-form');
+    
+    if (on) {
+      const wrapperDiv = document.createElement('div');
+      const slideFrame = document.createElement('iframe');
+      const newFrameAttrs =  {
+        src: 'https://docs.google.com/presentation/d/e/2PACX-1vRRKbyGTjjPfIj41Yn4Xo3p_sDZzRIHvFaOmJnPHXjIZJhNL5-FrXx8Vhu3hxprVbUaUwKjD_WngMS3/embed?start=true&loop=true&delayms=3000',
+        frameborder: '0',
+        width: '960',
+        height: '569',
+        allowfullscreen: 'true',
+        mozallowfullscreen: 'true',
+        webkitallowfullscreen: 'true',
+      };
+
+      wrapperDiv.id = 'slide-wrapper';
+      Object.keys(newFrameAttrs).forEach(key => {
+        slideFrame[key] = newFrameAttrs[key];
+      });
+      form.hidden = true;
+      wrapperDiv.appendChild(slideFrame);
+      form.after(wrapperDiv);
+    } else {
+      form.hidden = false;
+      document.getElementById('slide-wrapper').remove();
+    }
+  }
+
   /**
    * Gathers User info from form, of which there is only one on the page, and submits it to the Firebase DB.
    */
@@ -99,6 +128,7 @@ function AppExecute(firebase) {
     const userRef = firebase.auth().currentUser;
     const currentUser = (userRef && userRef.uid) || 'anonymous';
     let markup = '';
+    let currentUserHasTicket;
 
     // Update the page's knowledge of all the tickets, even the ones not for our class.
     tixRef = tix;
@@ -107,6 +137,9 @@ function AppExecute(firebase) {
     tix.forEach(function(ticket) {
       const val = ticket.exportVal();
       const disableTicket = currentUser !== val.creatorUid ? 'disabled' : '';
+
+      if (currentUser === val.creatorUid) currentUserHasTicket = true;
+
       markup += val && !val.resolved && val.room === classroomRef ? `
         <div class="unresolved-ticket" data-ticket-id="${val.submitTime}">
           <p>Help Requested</p>
@@ -118,6 +151,9 @@ function AppExecute(firebase) {
           >Problem Solved</button>
         </div>
       ` : '';
+
+      if (currentUserHasTicket) showHintsWhileWaiting(true);
+      else showHintsWhileWaiting(false);
     });
 
     // Grab the empty div once and put all the generated markup in there.
