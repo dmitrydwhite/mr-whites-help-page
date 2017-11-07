@@ -171,8 +171,8 @@ function AppExecute(firebase) {
     allClasses.once('value', selectClassroom);
 
     // Set listeners on the two `tickets` events we're working with: value and child_removed.
-    tickets.on('value', displayUnresolvedTickets);
     tickets.on('child_removed', resolveTicket);
+    tickets.on('value', displayUnresolvedTickets);
 
     // Set listeners on the markup elements that we will need to interact with.
     document.getElementById('help-form').addEventListener('submit', addTicket);
