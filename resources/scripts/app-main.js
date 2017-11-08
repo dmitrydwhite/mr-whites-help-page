@@ -6,7 +6,6 @@ function AppExecute(firebase) {
   var isInstructor = false;
   // Set refs for the Firebase DB lists.
   var tickets = firebase.database().ref('/tickets/');
-  var fixedTickets = firebase.database().ref('/resolved/');
   var allClasses = firebase.database().ref('/classrooms/');
   // Set a global Ref for the tickets.
   var tixRef;
@@ -104,23 +103,12 @@ function AppExecute(firebase) {
   }
 
   /**
-   * Removes the ticket from the active queue.  Click handler for clicking a "Problem Solved" button.
+   * Sets the ticket's resolved status to true, removing it from the display.
+   * Click handler for clicking a "Problem Solved" button.
    * @param {Event} evt The click event on the "Problem Solved" button.
    */
   function removeFromActive(evt) {
-    tickets.database.ref(`/tickets/${evt.currentTarget.getAttribute('data-id')}`).remove();
-  }
-
-  /**
-   * Sets a ticket's resolved value to "true", and pushes it to the fixed tickets list in Firebase DB.
-   * Callback for on.child_removed.
-   * @param {Firebase} resolved The Firebase dataset from the change handler.
-   */
-  function resolveTicket(resolved) {
-    const resolvedTicket = resolved.exportVal();
-
-    resolvedTicket.resolved = true;
-    fixedTickets.push(resolvedTicket);
+    tickets.database.ref(`/tickets/${evt.currentTarget.getAttribute('data-id')}/resolved`).set(true);
   }
 
   /**
@@ -176,8 +164,7 @@ function AppExecute(firebase) {
     // Run the function that adds the classroom selection buttons to the page.
     allClasses.once('value', selectClassroom);
 
-    // Set listeners on the two `tickets` events we're working with: value and child_removed.
-    tickets.on('child_removed', resolveTicket);
+    // Set listeners on the value changed event for tickets.
     tickets.on('value', displayUnresolvedTickets);
 
     // Set listeners on the markup elements that we will need to interact with.
