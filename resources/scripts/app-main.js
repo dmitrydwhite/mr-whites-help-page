@@ -171,7 +171,7 @@ function AppExecute(firebase) {
    */
   function startApp() {
     // See if this user is an instructor.
-    isUser = firebase.auth().currentUser && firebase.auth().currentUser.uid === 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
+    isInstructor = firebase.auth().currentUser && firebase.auth().currentUser.uid === 'KMuMoYvOnyWlVmikiTCmQnV7EN83';
 
     // Run the function that adds the classroom selection buttons to the page.
     allClasses.once('value', selectClassroom);
